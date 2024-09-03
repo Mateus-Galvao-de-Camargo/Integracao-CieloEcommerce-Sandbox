@@ -1,0 +1,103 @@
+﻿@page "/Cartoes/edit"
+
+@using Microsoft.EntityFrameworkCore
+@using TesteDaUmbler.Models
+@using TesteDaUmbler.Data
+@inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Editar</h1>
+
+<h4>Cartão</h4>
+<hr />
+@if (Cartao is null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Cartao" OnValidSubmit="UpdateCartao" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Cartao.Id" value="@Cartao.Id" />
+                <div class="mb-3">
+                    <label for="numerodocartao" class="form-label">Número Do Cartão:</label>
+                    <InputNumber id="numerodocartao" @bind-Value="Cartao.NumeroDoCartao" class="form-control" />
+                    <ValidationMessage For="() => Cartao.NumeroDoCartao" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="cvc" class="form-label">CVC:</label>
+                    <InputNumber id="cvc" @bind-Value="Cartao.Cvc" class="form-control" />
+                    <ValidationMessage For="() => Cartao.Cvc" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="validade" class="form-label">Validade:</label>
+                    <InputDate id="validade" @bind-Value="Cartao.Validade" class="form-control" />
+                    <ValidationMessage For="() => Cartao.Validade" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="nomenocartao" class="form-label">Nome No Cartão:</label>
+                    <InputText id="nomenocartao" @bind-Value="Cartao.NomeNoCartao" class="form-control" />
+                    <ValidationMessage For="() => Cartao.NomeNoCartao" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/cartoes">Voltar pra lista</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public Cartao? Cartao { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cartao ??= await DbContext.Cartoes.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Cartao is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateCartao()
+    {
+        DbContext.Attach(Cartao!).State = EntityState.Modified;
+
+        try
+        {
+            await DbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!CartaoExists(Cartao!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/cartoes");
+    }
+
+    bool CartaoExists(int id)
+    {
+        return DbContext.Cartoes.Any(e => e.Id == id);
+    }
+}
