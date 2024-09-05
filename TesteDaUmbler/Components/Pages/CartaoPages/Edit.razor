@@ -26,22 +26,40 @@ else
                 <input type="hidden" name="Cartao.Id" value="@Cartao.Id" />
                 <div class="mb-3">
                     <label for="numerodocartao" class="form-label">Número Do Cartão:</label>
-                    <InputNumber id="numerodocartao" @bind-Value="Cartao.NumeroDoCartao" class="form-control" />
+                    <InputText id="numerodocartao" @bind-Value="Cartao.NumeroDoCartao" class="form-control" />
                     <ValidationMessage For="() => Cartao.NumeroDoCartao" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="cvc" class="form-label">CVC:</label>
-                    <InputNumber id="cvc" @bind-Value="Cartao.Cvc" class="form-control" />
-                    <ValidationMessage For="() => Cartao.Cvc" class="text-danger" />
+                    <label for="cvv" class="form-label">CVV:</label>
+                    <InputText id="cvv" @bind-Value="Cartao.Cvv" class="form-control" />
+                    <ValidationMessage For="() => Cartao.Cvv" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="validade" class="form-label">Validade:</label>
-                    <InputDate id="validade" @bind-Value="Cartao.Validade" class="form-control" />
-                    <ValidationMessage For="() => Cartao.Validade" class="text-danger" />
+                    <label for="validade" class="form-label">Validade (MM/AAAA):</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <InputSelect id="mes" @bind-Value="Cartao.Mes" class="form-control">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i">@i.ToString("D2")</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => Cartao.Mes" class="text-danger" />
+                        </div>
+                        <div class="col-6">
+                            <InputSelect id="ano" @bind-Value="Cartao.Ano" class="form-control">
+                                @for (int i = DateTime.Now.Year; i <= DateTime.Now.Year + 20; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="() => Cartao.Ano" class="text-danger" />
+                        </div>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="nomenocartao" class="form-label">Nome No Cartão:</label>
-                    <InputText id="nomenocartao" @bind-Value="Cartao.NomeNoCartao" class="form-control" />
+                    <InputText id="nomenocartao" @bind-Value="Cartao.NomeNoCartao" class="form-control" style="text-transform: uppercase;" />
                     <ValidationMessage For="() => Cartao.NomeNoCartao" class="text-danger" />
                 </div>
                 <button type="submit" class="btn btn-primary">Salvar</button>
@@ -75,6 +93,10 @@ else
     // For more details, see https://aka.ms/RazorPagesCRUD.
     public async Task UpdateCartao()
     {
+        Cartao.Validade = $"{Cartao.Mes.ToString("D2")}/{Cartao.Ano}";
+
+        Cartao.NomeNoCartao = Cartao.NomeNoCartao.ToUpper();
+
         DbContext.Attach(Cartao!).State = EntityState.Modified;
 
         try
