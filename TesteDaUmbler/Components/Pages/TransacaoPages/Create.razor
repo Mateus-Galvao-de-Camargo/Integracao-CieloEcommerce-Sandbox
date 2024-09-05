@@ -1,0 +1,95 @@
+﻿@page "/transacaos/create"
+
+@using Cielo
+@using Microsoft.EntityFrameworkCore
+@using TesteDaUmbler.Models
+@using TesteDaUmbler.Data
+@inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h4>Transacao</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Transacao" OnValidSubmit="AddTransacao" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="mb-3">
+                <label for="estadodatransacao" class="form-label">EstadoDaTransacao:</label> 
+                <InputText id="estadodatransacao" @bind-Value="Transacao.EstadoDaTransacao" class="form-control" /> 
+                <ValidationMessage For="() => Transacao.EstadoDaTransacao" class="text-danger" /> 
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/transacaos">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public Transacao Transacao { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    public Cartao? Cartao { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cartao ??= await DbContext.Cartoes.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Cartao is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    public Customer customer = new Customer(name: "Roberto League of Legends da Silva");
+
+    // string _holder = Cartao.NomeNoCartao;
+
+    // public CreditCard creditCard = new CreditCard(
+    //     cardNumber: Cartao.NumeroDoCartao,
+    //     holder: Cartao.NomeNoCartao,
+    //     expirationDate: validExpirationDate,
+    //     securityCode: "123",
+    //     brand: CardBrand.Visa);
+
+    // public Payment payment = new Payment(
+    //     amount: 150.00M,
+    //     currency: Currency.BRL,
+    //     installments: 1,
+    //     capture: false,
+    //     softDescriptor: "DOTNETPROJECT",
+    //     creditCard: creditCard);
+
+    // /* store order number */
+    // public int merchantOrderId = new Random().Next();
+
+    // public Transaction transaction = new Transaction(
+    //     merchantOrderId: merchantOrderId.ToString(),
+    //     customer: customer,
+    //     payment: payment);
+
+    // public returnTransaction = api.CreateTransaction(Guid.NewGuid(), transaction);
+
+    // Assert.IsTrue(returnTransaction.Payment.Status == Status.Authorized, "Transação não foi autorizada");
+
+    public async Task AddTransacao()
+    {
+        // using var context = DbContext.CreateDbContext();
+        // context.Transacao.Add(Transacao);
+        // await context.SaveChangesAsync();
+        // NavigationManager.NavigateTo("/transacaos");
+    }
+}

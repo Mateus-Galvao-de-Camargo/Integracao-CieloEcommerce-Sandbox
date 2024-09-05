@@ -93,29 +93,33 @@ else
     // For more details, see https://aka.ms/RazorPagesCRUD.
     public async Task UpdateCartao()
     {
-        Cartao.Validade = $"{Cartao.Mes.ToString("D2")}/{Cartao.Ano}";
-
-        Cartao.NomeNoCartao = Cartao.NomeNoCartao.ToUpper();
-
-        DbContext.Attach(Cartao!).State = EntityState.Modified;
-
-        try
+        if(Cartao != null)
         {
-            await DbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!CartaoExists(Cartao!.Id))
-            {
-                NavigationManager.NavigateTo("notfound");
-            }
-            else
-            {
-                throw;
-            }
-        }
+            Cartao.Validade = $"{Cartao.Mes.ToString("D2")}/{Cartao.Ano}";
 
-        NavigationManager.NavigateTo("/cartoes");
+            Cartao.NomeNoCartao = Cartao.NomeNoCartao.ToUpper();
+
+            DbContext.Attach(Cartao!).State = EntityState.Modified;
+
+            try
+            {
+                await DbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CartaoExists(Cartao!.Id))
+                {
+                    NavigationManager.NavigateTo("notfound");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            NavigationManager.NavigateTo("/cartoes");
+        }
+      
     }
 
     bool CartaoExists(int id)

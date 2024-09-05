@@ -1,0 +1,47 @@
+﻿@page "/transacaos/details"
+
+@using Microsoft.EntityFrameworkCore
+@using TesteDaUmbler.Models
+@inject IDbContextFactory<TesteDaUmbler.Data.AppDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>Transacao</h4>
+    <hr />
+    @if (transacao is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">EstadoDaTransacao</dt>
+            <dd class="col-sm-10">@transacao.EstadoDaTransacao</dd>
+        </dl>
+        <div>
+            <a href="@($"/transacaos/edit?id={transacao.Id}")">Edit</a> |
+            <a href="@($"/transacaos")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    Transacao? transacao;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        transacao = await context.Transacao.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (transacao is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

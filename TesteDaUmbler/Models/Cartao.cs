@@ -26,7 +26,7 @@ namespace TesteDaUmbler.Models
         [Range(2024, 2100, ErrorMessage = "O ano deve ser entre 2024 e 2100.")]
         public int Ano { get; set; }
 
-        public string Validade { get; set; } = null!;
+        public string? Validade { get; set; } = null!;
 
         [Required(ErrorMessage = "O nome no cartão é obrigatório.")]
         [LettersOnly]
@@ -39,12 +39,13 @@ namespace TesteDaUmbler.Models
         {
             if (value is string stringValue)
             {
-                // Verifica se contém apenas letras
-                if (!Regex.IsMatch(stringValue, @"^[a-z\s]+$"))
+                // Verifica se contém apenas letras e espaços
+                if (!Regex.IsMatch(stringValue, @"^[a-zA-Z ]+$"))
                 {
                     return new ValidationResult("O nome do titular deve conter apenas letras.");
                 }
             }
+
             return ValidationResult.Success;
         }
     }
