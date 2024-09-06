@@ -1,4 +1,4 @@
-﻿@page "/transacaos/delete"
+﻿@page "/transacoes/delete"
 
 @using Microsoft.EntityFrameworkCore
 @using TesteDaUmbler.Models
@@ -20,12 +20,16 @@
     }
     else {
         <dl class="row">
+            <dt class="col-sm-2">Valor</dt>
+            <dd class="col-sm-10">@transacao.Valor</dd>
+        </dl>
+        <dl class="row">
             <dt class="col-sm-2">EstadoDaTransacao</dt>
             <dd class="col-sm-10">@transacao.EstadoDaTransacao</dd>
         </dl>
         <EditForm method="post" Model="transacao" OnValidSubmit="DeleteTransacao" FormName="delete" Enhance>
             <button type="submit" class="btn btn-danger" disabled="@(transacao is null)">Delete</button> |
-            <a href="/transacaos">Back to List</a>
+            <a href="/transacoes">Back to List</a>
         </EditForm>
     }
 </div>
@@ -52,6 +56,6 @@
         using var context = DbFactory.CreateDbContext();
         context.Transacao.Remove(transacao!);
         await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/transacaos");
+        NavigationManager.NavigateTo("/transacoes");
     }
 }

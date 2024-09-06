@@ -1,37 +1,37 @@
-﻿@page "/transacaos"
+﻿@page "/transacoes"
 
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using TesteDaUmbler.Models
 @using TesteDaUmbler.Data
-@inject IDbContextFactory<TesteDaUmbler.Data.AppDbContext> DbFactory
+@inject AppDbContext DbContext
 @implements IAsyncDisposable
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Transações</PageTitle>
 
-<h1>Index</h1>
+<h1>Transações</h1>
 
 <p>
-    <a href="transacaos/create">Create New</a>
+    <a href="transacoes/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Transacao">
+<QuickGrid Class="table" Items="DbContext.Transacao">
+    <PropertyColumn Property="transacao => transacao.Valor" />
     <PropertyColumn Property="transacao => transacao.EstadoDaTransacao" />
 
     <TemplateColumn Context="transacao">
-        <a href="@($"transacaos/edit?id={transacao.Id}")">Edit</a> |
-        <a href="@($"transacaos/details?id={transacao.Id}")">Details</a> |
-        <a href="@($"transacaos/delete?id={transacao.Id}")">Delete</a>
+        <a href="@($"transacoes/edit?id={transacao.Id}")">Edit</a> |
+        <a href="@($"transacoes/details?id={transacao.Id}")">Details</a> |
+        <a href="@($"transacoes/delete?id={transacao.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
 
 @code {
-    AppDbContext context = default!;
-
-    protected override void OnInitialized()
+    public async ValueTask DisposeAsync()
     {
-        context = DbFactory.CreateDbContext();
+        if (DbContext != null)
+        {
+            await DbContext.DisposeAsync();
+        }
     }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

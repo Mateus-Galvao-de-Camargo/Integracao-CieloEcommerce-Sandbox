@@ -1,11 +1,12 @@
-﻿@page "/transacaos/create"
+﻿@page "/transacoes/create"
 
-@using Cielo
 @using Microsoft.EntityFrameworkCore
 @using TesteDaUmbler.Models
 @using TesteDaUmbler.Data
+@inject HttpClient HttpClient
 @inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
+@inject IHttpClientFactory ClientFactory
 
 <PageTitle>Create</PageTitle>
 
@@ -18,11 +19,20 @@
         <EditForm method="post" Model="Transacao" OnValidSubmit="AddTransacao" FormName="create" Enhance>
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" />
-
             <div class="mb-3">
-                <label for="estadodatransacao" class="form-label">EstadoDaTransacao:</label> 
-                <InputText id="estadodatransacao" @bind-Value="Transacao.EstadoDaTransacao" class="form-control" /> 
-                <ValidationMessage For="() => Transacao.EstadoDaTransacao" class="text-danger" /> 
+                <label for="valor" class="form-label">Valor:</label> 
+                <InputNumber id="valor" @bind-Value="Transacao.Valor" class="form-control" /> 
+                <ValidationMessage For="() => Transacao.Valor" class="text-danger" /> 
+            </div>    
+            <div class="mb-3">
+                <label for="cartaoId" class="form-label">Selecione o Cartão:</label>
+                <InputSelect id="cartaoId" @bind-Value="Transacao.CartaoId" class="form-control">
+                    @foreach (var cartao in cartoes)
+                    {
+                        <option value="@cartao.Id">@cartao.NumeroDoCartao - @cartao.NomeNoCartao</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Transacao.CartaoId" class="text-danger" />
             </div>
 
             <button type="submit" class="btn btn-primary">Create</button>
@@ -31,65 +41,71 @@
 </div>
 
 <div>
-    <a href="/transacaos">Back to List</a>
+    <a href="/transacoes">Voltar pra lista</a>
 </div>
+
+@if (!string.IsNullOrEmpty(mensagemSucesso))
+{
+    <div class="alert alert-success">@mensagemSucesso</div>
+}
+
+@if (!string.IsNullOrEmpty(mensagemErro))
+{
+    <div class="alert alert-danger">@mensagemErro</div>
+}
 
 @code {
 
     [SupplyParameterFromForm]
     public Transacao Transacao { get; set; } = new();
-
-    [SupplyParameterFromQuery]
-    public int Id { get; set; }
-
-    public Cartao? Cartao { get; set; }
+    private List<Cartao> cartoes = new List<Cartao>();
+    private string? mensagemErro;
+    private string? mensagemSucesso;
 
     protected override async Task OnInitializedAsync()
     {
-        Cartao ??= await DbContext.Cartoes.FirstOrDefaultAsync(m => m.Id == Id);
-
-        if (Cartao is null)
-        {
-            NavigationManager.NavigateTo("notfound");
-        }
+        // Carregar a lista de cartões cadastrados no banco
+        cartoes = await DbContext.Cartoes.ToListAsync();
     }
-
-    public Customer customer = new Customer(name: "Roberto League of Legends da Silva");
-
-    // string _holder = Cartao.NomeNoCartao;
-
-    // public CreditCard creditCard = new CreditCard(
-    //     cardNumber: Cartao.NumeroDoCartao,
-    //     holder: Cartao.NomeNoCartao,
-    //     expirationDate: validExpirationDate,
-    //     securityCode: "123",
-    //     brand: CardBrand.Visa);
-
-    // public Payment payment = new Payment(
-    //     amount: 150.00M,
-    //     currency: Currency.BRL,
-    //     installments: 1,
-    //     capture: false,
-    //     softDescriptor: "DOTNETPROJECT",
-    //     creditCard: creditCard);
-
-    // /* store order number */
-    // public int merchantOrderId = new Random().Next();
-
-    // public Transaction transaction = new Transaction(
-    //     merchantOrderId: merchantOrderId.ToString(),
-    //     customer: customer,
-    //     payment: payment);
-
-    // public returnTransaction = api.CreateTransaction(Guid.NewGuid(), transaction);
-
-    // Assert.IsTrue(returnTransaction.Payment.Status == Status.Authorized, "Transação não foi autorizada");
 
     public async Task AddTransacao()
     {
-        // using var context = DbContext.CreateDbContext();
-        // context.Transacao.Add(Transacao);
-        // await context.SaveChangesAsync();
-        // NavigationManager.NavigateTo("/transacaos");
+        try
+        {
+            var CartaoSelecionado = await DbContext.Cartoes.FindAsync(Transacao.CartaoId);
+
+            Transacao.Cartao = CartaoSelecionado!;
+
+            var pagamentoRequest = new
+            {
+                Cartao = Transacao.Cartao,
+                Transacao = Transacao
+            };
+
+            var httpClient = ClientFactory.CreateClient("MyAPI");
+
+            var response = await HttpClient.PostAsJsonAsync("http://localhost:5035/api/payment", pagamentoRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                mensagemSucesso = $"Pagamento realizado com sucesso! Detalhes: {result}";
+
+                Transacao.EstadoDaTransacao = result;
+
+                DbContext.Transacao.Add(Transacao);
+                await DbContext.SaveChangesAsync();
+                NavigationManager.NavigateTo("/transacoes");
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                mensagemErro = $"Erro ao realizar o pagamento: {errorContent}";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemErro = $"Ocorreu um erro: {ex.Message}";
+        }
     }
 }

@@ -26,12 +26,12 @@ else
                 <input type="hidden" name="Cartao.Id" value="@Cartao.Id" />
                 <div class="mb-3">
                     <label for="numerodocartao" class="form-label">Número Do Cartão:</label>
-                    <InputText id="numerodocartao" @bind-Value="Cartao.NumeroDoCartao" class="form-control" />
+                    <InputText id="numerodocartao" @bind-Value="Cartao.NumeroDoCartao" class="form-control" maxlength="16" />
                     <ValidationMessage For="() => Cartao.NumeroDoCartao" class="text-danger" />
                 </div>
                 <div class="mb-3">
                     <label for="cvv" class="form-label">CVV:</label>
-                    <InputText id="cvv" @bind-Value="Cartao.Cvv" class="form-control" />
+                    <InputText id="cvv" @bind-Value="Cartao.Cvv" class="form-control" maxlength="3" />
                     <ValidationMessage For="() => Cartao.Cvv" class="text-danger" />
                 </div>
                 <div class="mb-3">
@@ -98,6 +98,15 @@ else
             Cartao.Validade = $"{Cartao.Mes.ToString("D2")}/{Cartao.Ano}";
 
             Cartao.NomeNoCartao = Cartao.NomeNoCartao.ToUpper();
+
+            if (Cartao.NumeroDoCartao.StartsWith("5"))
+            {
+                Cartao.Bandeira = "Mastercard";
+            }
+            else
+            {
+                Cartao.Bandeira = "Visa";
+            }
 
             DbContext.Attach(Cartao!).State = EntityState.Modified;
 

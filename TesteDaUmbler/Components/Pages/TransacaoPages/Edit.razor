@@ -1,4 +1,4 @@
-﻿@page "/Transacaos/edit"
+﻿@page "/Transacoes/edit"
 
 @using Microsoft.EntityFrameworkCore
 @using TesteDaUmbler.Models
@@ -24,6 +24,11 @@ else
                 <ValidationSummary />
                 <input type="hidden" name="Transacao.Id" value="@Transacao.Id" />
                 <div class="mb-3">
+                    <label for="valor" class="form-label">Valor:</label>
+                    <InputNumber id="valor" @bind-Value="Transacao.Valor" class="form-control" />
+                    <ValidationMessage For="() => Transacao.Valor" class="text-danger" />
+                </div>
+                <div class="mb-3">
                     <label for="estadodatransacao" class="form-label">EstadoDaTransacao:</label>
                     <InputText id="estadodatransacao" @bind-Value="Transacao.EstadoDaTransacao" class="form-control" />
                     <ValidationMessage For="() => Transacao.EstadoDaTransacao" class="text-danger" />
@@ -35,7 +40,7 @@ else
 }
 
 <div>
-    <a href="/transacaos">Back to List</a>
+    <a href="/transacoes">Back to List</a>
 </div>
 
 @code {
@@ -79,7 +84,7 @@ else
             }
         }
 
-        NavigationManager.NavigateTo("/transacaos");
+        NavigationManager.NavigateTo("/transacoes");
     }
 
     bool TransacaoExists(int id)

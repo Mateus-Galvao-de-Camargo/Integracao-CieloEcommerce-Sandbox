@@ -11,12 +11,12 @@ namespace TesteDaUmbler.Models
         [Required(ErrorMessage = "O cartão é obrigatório.")]
         [StringLength(16, MinimumLength = 16, ErrorMessage = "O cartão deve ter 16 dígitos.")]
         [RegularExpression(@"^[4-5]\d{15}$", ErrorMessage = "O número deve começar com 4 ou 5 e conter apenas números.")]
-        public string NumeroDoCartao { get; set; }
+        public string NumeroDoCartao { get; set; } = null!;
 
         [Required(ErrorMessage = "O código de segurança é obrigatório.")]
         [StringLength(3, MinimumLength = 3, ErrorMessage = "O CVV deve ter 3 dígitos.")]
         [RegularExpression(@"^\d{3}$", ErrorMessage = "Somente números são permitidos.")]
-        public string Cvv { get; set; }
+        public string Cvv { get; set; } = null!;
 
         [Required(ErrorMessage = "O mês de validade é obrigatório.")]
         [Range(1, 12, ErrorMessage = "O mês deve ser entre 1 e 12.")]
@@ -31,6 +31,8 @@ namespace TesteDaUmbler.Models
         [Required(ErrorMessage = "O nome no cartão é obrigatório.")]
         [LettersOnly]
         public string NomeNoCartao { get; set; } = null!;
+
+        public string? Bandeira { get; set; }
     }
 
     public class LettersOnlyAttribute : ValidationAttribute
