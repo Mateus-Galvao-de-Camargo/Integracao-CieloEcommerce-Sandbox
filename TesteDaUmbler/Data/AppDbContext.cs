@@ -11,6 +11,7 @@ namespace TesteDaUmbler.Data
         }
 
         public DbSet<Cartao> Cartoes { get; set; } = null!;
-        public DbSet<TesteDaUmbler.Models.Transacao> Transacao { get; set; } = default!;
+
+        public DbSet<Transacao> Transacoes { get; set; } = null!;
     }
 }

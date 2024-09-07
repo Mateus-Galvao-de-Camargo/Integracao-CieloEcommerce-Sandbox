@@ -1,6 +1,7 @@
 ﻿@page "/transacoes/create"
 
 @using Microsoft.EntityFrameworkCore
+@using Newtonsoft.Json
 @using TesteDaUmbler.Models
 @using TesteDaUmbler.Data
 @inject HttpClient HttpClient
@@ -8,11 +9,11 @@
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory ClientFactory
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Transação</PageTitle>
 
-<h1>Create</h1>
+<h1>Criar</h1>
 
-<h4>Transacao</h4>
+<h4>Transação</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -35,7 +36,7 @@
                 <ValidationMessage For="() => Transacao.CartaoId" class="text-danger" />
             </div>
 
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="submit" class="btn btn-primary">Criar</button>
         </EditForm>
     </div>
 </div>
@@ -43,11 +44,6 @@
 <div>
     <a href="/transacoes">Voltar pra lista</a>
 </div>
-
-@if (!string.IsNullOrEmpty(mensagemSucesso))
-{
-    <div class="alert alert-success">@mensagemSucesso</div>
-}
 
 @if (!string.IsNullOrEmpty(mensagemErro))
 {
@@ -60,7 +56,6 @@
     public Transacao Transacao { get; set; } = new();
     private List<Cartao> cartoes = new List<Cartao>();
     private string? mensagemErro;
-    private string? mensagemSucesso;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,26 +71,27 @@
 
             Transacao.Cartao = CartaoSelecionado!;
 
-            var pagamentoRequest = new
-            {
-                Cartao = Transacao.Cartao,
-                Transacao = Transacao
-            };
-
-            var httpClient = ClientFactory.CreateClient("MyAPI");
-
-            var response = await HttpClient.PostAsJsonAsync("http://localhost:5035/api/payment", pagamentoRequest);
+            var response = await HttpClient.PostAsJsonAsync("http://localhost:5035/api/payment", Transacao);
 
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadAsStringAsync();
-                mensagemSucesso = $"Pagamento realizado com sucesso! Detalhes: {result}";
 
-                Transacao.EstadoDaTransacao = result;
+                Transacao.Log = result;
 
-                DbContext.Transacao.Add(Transacao);
+                var log = JsonConvert.DeserializeObject<LogDaTransacao>(Transacao.Log);
+
+                if (log == null || string.IsNullOrEmpty(log.Payment.PaymentId))
+                {
+                    mensagemErro = $"PaymentId não identificado";
+                    return;
+                }
+                Transacao.PaymentId = log.Payment.PaymentId;
+
+                Transacao.EstadoDaTransacao = log.Payment.ReturnMessage;
+
+                DbContext.Transacoes.Add(Transacao);
                 await DbContext.SaveChangesAsync();
-                NavigationManager.NavigateTo("/transacoes");
             }
             else
             {
@@ -107,5 +103,7 @@
         {
             mensagemErro = $"Ocorreu um erro: {ex.Message}";
         }
+
+        NavigationManager.NavigateTo("/transacoes");
     }
 }

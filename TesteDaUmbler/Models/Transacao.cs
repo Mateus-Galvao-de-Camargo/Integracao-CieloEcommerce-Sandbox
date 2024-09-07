@@ -16,6 +16,11 @@ namespace TesteDaUmbler.Models
         [Required(ErrorMessage = "Por favor, insira um valor válido.")]
         public double Valor { get; set; }
 
-        public string EstadoDaTransacao { get; set; } = null!;
+        public string? EstadoDaTransacao { get; set; }
+
+        public string? PaymentId { get; set; }
+
+        public string? Log { get; set; }
     }
 }
+
