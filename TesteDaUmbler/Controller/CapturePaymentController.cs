@@ -6,21 +6,21 @@ namespace TesteDaUmbler.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentController : ControllerBase
+    public class CapturePaymentController : ControllerBase
     {
         private readonly CieloService _cieloService;
 
-        public PaymentController(CieloService cieloService)
+        public CapturePaymentController(CieloService cieloService)
         {
             _cieloService = cieloService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> MakePayment(Transacao Transacao)
+        public async Task<IActionResult> CaptureFullPayment(string PaymentId)
         {
             try
             {
-                var paymentResult = await _cieloService.CreatePayment(Transacao);
+                var paymentResult = await _cieloService.CapturePay(PaymentId);
                 return Ok(paymentResult);
             }
             catch (Exception ex)

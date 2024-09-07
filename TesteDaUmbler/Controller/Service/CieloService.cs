@@ -21,8 +21,9 @@ public class CieloService
         _apiUrl = configuration["Cielo:CieloApiCriaTransacaoUrl"]!;
     }
 
-    public async Task<string> CreatePayment(Cartao Cartao, Transacao Transacao)
+    public async Task<string> CreatePayment(Transacao Transacao)
     {
+        var Cartao = Transacao.Cartao;
         var paymentRequest = new
         {
             MerchantOrderId = Transacao.Id,
@@ -54,10 +55,8 @@ public class CieloService
         _httpClient.DefaultRequestHeaders.Add("MerchantId", _merchantId);
         _httpClient.DefaultRequestHeaders.Add("MerchantKey", _merchantKey);
 
-        // Enviar a requisição POST
         var response = await _httpClient.PostAsync(_apiUrl, content);
 
-        // Verificar a resposta
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadAsStringAsync();
@@ -67,6 +66,48 @@ public class CieloService
         {
             var error = await response.Content.ReadAsStringAsync();
             throw new Exception($"Erro na requisição: {response.StatusCode} - {error}");
+        }
+    }
+
+    public async Task<string> CancelarPagamento(string paymentId)
+    {
+        var cancelUrl = $"{_apiUrl}/{paymentId}/void";
+
+        _httpClient.DefaultRequestHeaders.Add("MerchantId", _merchantId);
+        _httpClient.DefaultRequestHeaders.Add("MerchantKey", _merchantKey);
+
+        var response = await _httpClient.PutAsync(cancelUrl, null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadAsStringAsync();
+            return result;
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Erro ao cancelar o pagamento: {response.StatusCode} - {error}");
+        }
+    }
+
+    public async Task<string> CapturePay(string paymentId)
+    {
+        var captureUrl = $"{_apiUrl}/{paymentId}/capture";
+
+        _httpClient.DefaultRequestHeaders.Add("MerchantId", _merchantId);
+        _httpClient.DefaultRequestHeaders.Add("MerchantKey", _merchantKey);
+
+        var response = await _httpClient.PutAsync(captureUrl, null);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadAsStringAsync();
+            return result;
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Erro ao cancelar o pagamento: {response.StatusCode} - {error}");
         }
     }
 }

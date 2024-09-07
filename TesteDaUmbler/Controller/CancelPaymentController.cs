@@ -1,27 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using TesteDaUmbler.Models;
 
 namespace TesteDaUmbler.Controller
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentController : ControllerBase
+    public class CancelPaymentController : ControllerBase
     {
         private readonly CieloService _cieloService;
 
-        public PaymentController(CieloService cieloService)
+        public CancelPaymentController(CieloService cieloService)
         {
             _cieloService = cieloService;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> MakePayment(Transacao Transacao)
+        [HttpPut("{paymentId}")]
+        public async Task<IActionResult> CancelarPagamento(string paymentId)
         {
             try
             {
-                var paymentResult = await _cieloService.CreatePayment(Transacao);
-                return Ok(paymentResult);
+                var resultado = await _cieloService.CancelarPagamento(paymentId);
+                return Ok(resultado);
             }
             catch (Exception ex)
             {
