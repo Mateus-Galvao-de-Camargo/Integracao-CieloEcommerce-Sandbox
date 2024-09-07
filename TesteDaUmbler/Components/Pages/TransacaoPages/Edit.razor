@@ -2,46 +2,46 @@
 
 @using Microsoft.EntityFrameworkCore
 @using TesteDaUmbler.Models
-@inject IDbContextFactory<TesteDaUmbler.Data.AppDbContext> DbFactory
+@using TesteDaUmbler.Data
+@inject CieloService CieloService
+@inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 
-<PageTitle>Edit</PageTitle>
+<PageTitle>Transação</PageTitle>
 
-<h1>Edit</h1>
+<h1>Captura de Saldo</h1>
 
-<h4>Transacao</h4>
+<h4>Transação</h4>
 <hr />
 @if (Transacao is null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Carregando...</em></p>
 }
 else
 {
-    <div class="row">
-        <div class="col-md-4">
-            <EditForm method="post" Model="Transacao" OnValidSubmit="UpdateTransacao" FormName="edit" Enhance>
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <input type="hidden" name="Transacao.Id" value="@Transacao.Id" />
-                <div class="mb-3">
-                    <label for="valor" class="form-label">Valor:</label>
-                    <InputNumber id="valor" @bind-Value="Transacao.Valor" class="form-control" />
-                    <ValidationMessage For="() => Transacao.Valor" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="estadodatransacao" class="form-label">EstadoDaTransacao:</label>
-                    <InputText id="estadodatransacao" @bind-Value="Transacao.EstadoDaTransacao" class="form-control" />
-                    <ValidationMessage For="() => Transacao.EstadoDaTransacao" class="text-danger" />
-                </div>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </EditForm>
-        </div>
-    </div>
+    <dl class="row">
+        <dt class="col-sm-2">Valor</dt>
+        <dd class="col-sm-10">@Transacao.Valor</dd>
+        <dt class="col-sm-2">Id do Pagamento</dt>
+        <dd class="col-sm-10">@Transacao.PaymentId</dd>
+        <dt class="col-sm-2">Estado Da Transação</dt>
+        <dd class="col-sm-10">@Transacao.EstadoDaTransacao</dd>
+        <dt class="col-sm-2">Número do Cartão</dt>
+        <dd class="col-sm-10">@Transacao.Cartao.NumeroDoCartao</dd>
+        <dt class="col-sm-2">Nome no Cartão</dt>
+        <dd class="col-sm-10">@Transacao.Cartao.NomeNoCartao</dd>
+    </dl>
+
+    <EditForm method="post" Model="Transacao" OnValidSubmit="CapturaTransacao" FormName="edit" Enhance>
+        <button type="submit" class="btn btn-primary" disabled="@(Transacao is null)">Capturar</button> |
+        <a href="@($"/transacoes")">Voltar pra lista</a>
+    </EditForm>
 }
 
-<div>
-    <a href="/transacoes">Back to List</a>
-</div>
+@if (!string.IsNullOrEmpty(mensagemErro))
+{
+    <div class="alert alert-danger">@mensagemErro</div>
+}
 
 @code {
     [SupplyParameterFromQuery]
@@ -50,10 +50,11 @@ else
     [SupplyParameterFromForm]
     public Transacao? Transacao { get; set; }
 
+    private string? mensagemErro;
+
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
-        Transacao ??= await context.Transacao.FirstOrDefaultAsync(m => m.Id == Id);
+        Transacao ??= await DbContext.Transacoes.Include(t => t.Cartao).FirstOrDefaultAsync(m => m.Id == Id);
 
         if (Transacao is null)
         {
@@ -61,16 +62,22 @@ else
         }
     }
 
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see https://aka.ms/RazorPagesCRUD.
-    public async Task UpdateTransacao()
+    public async Task CapturaTransacao()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.Attach(Transacao!).State = EntityState.Modified;
-
         try
         {
-            await context.SaveChangesAsync();
+            if (Transacao is not null && !string.IsNullOrEmpty(Transacao.PaymentId))
+            {
+                var capturaResultado = await CieloService.CapturePay(Transacao.PaymentId);
+                Console.WriteLine($"Resultado do cancelamento: {capturaResultado}");
+
+                Transacao.Log = capturaResultado;
+                Transacao.EstadoDaTransacao = "Transação Capturada!";
+
+                DbContext.Attach(Transacao!).State = EntityState.Modified;
+
+                await DbContext.SaveChangesAsync();
+            }
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -83,13 +90,17 @@ else
                 throw;
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao cancelar a transação: {ex.Message}");
+            mensagemErro = "A Transação não pode ser cancelada.";
+        }
 
         NavigationManager.NavigateTo("/transacoes");
     }
 
     bool TransacaoExists(int id)
     {
-        using var context = DbFactory.CreateDbContext();
-        return context.Transacao.Any(e => e.Id == id);
+        return DbContext.Transacoes.Any(e => e.Id == id);
     }
 }

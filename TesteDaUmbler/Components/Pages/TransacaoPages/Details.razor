@@ -2,30 +2,52 @@
 
 @using Microsoft.EntityFrameworkCore
 @using TesteDaUmbler.Models
-@inject IDbContextFactory<TesteDaUmbler.Data.AppDbContext> DbFactory
+@using TesteDaUmbler.Data
+@inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 
-<PageTitle>Details</PageTitle>
+<PageTitle>Transação</PageTitle>
 
-<h1>Details</h1>
+<h1>Detalhes</h1>
 
 <div>
-    <h4>Transacao</h4>
+    <h4>Transação</h4>
     <hr />
     @if (transacao is null)
     {
-        <p><em>Loading...</em></p>
+        <p><em>Carregando...</em></p>
     }
     else {
         <dl class="row">
             <dt class="col-sm-2">Valor</dt>
             <dd class="col-sm-10">@transacao.Valor</dd>
-            <dt class="col-sm-2">EstadoDaTransacao</dt>
+            <dt class="col-sm-2">Id do Pagamento</dt>
+            <dd class="col-sm-10">@transacao.PaymentId</dd>
+            <dt class="col-sm-2">Estado Da Transação</dt>
             <dd class="col-sm-10">@transacao.EstadoDaTransacao</dd>
+            <dt class="col-sm-2">Número do Cartão</dt>
+            <dd class="col-sm-10">@transacao.Cartao.NumeroDoCartao</dd>
+            <dt class="col-sm-2">Nome no Cartão</dt>
+            <dd class="col-sm-10">@transacao.Cartao.NomeNoCartao</dd>
+            <dt class="col-sm-2">Log</dt>
+            <dd class="col-sm-10">@transacao.Log</dd>
         </dl>
         <div>
-            <a href="@($"/transacoes/edit?id={transacao.Id}")">Edit</a> |
-            <a href="@($"/transacoes")">Back to List</a>
+            @if (transacao.EstadoDaTransacao == "Operation Successful")
+            {
+                <a href="@($"/transacoes/edit?id={transacao.Id}")">Capturar  |</a>
+                <a href="@($"transacoes/delete?id={transacao.Id}")">Cancelar  |</a>
+                <a href="@($"/transacoes")">Voltar pra lista</a>
+            }
+            else if (transacao.EstadoDaTransacao == "Transação Capturada!")
+            {
+                <a href="@($"transacoes/delete?id={transacao.Id}")">Cancelar  |</a>
+                <a href="@($"/transacoes")">Voltar pra lista</a>
+            }
+            else
+            {
+                <a href="@($"/transacoes")">Voltar pra lista</a>
+            }
         </div>
     }
 </div>
@@ -38,8 +60,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
-        transacao = await context.Transacao.FirstOrDefaultAsync(m => m.Id == Id);
+        transacao = await DbContext.Transacoes.Include(t => t.Cartao).FirstOrDefaultAsync(m => m.Id == Id);
 
         if (transacao is null)
         {
