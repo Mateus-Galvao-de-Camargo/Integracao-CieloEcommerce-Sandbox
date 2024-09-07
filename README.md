@@ -28,7 +28,7 @@ git clone https://github.com/Mateus-Galvao-de-Camargo/TesteDaUmbler.git
 Entre na pasta do projeto clonado:
 
 ```bash
-cd TesteDaUmbler
+cd TesteDaUmbler/TesteDaUmbler
 ```
 
 ### 3. Configurar a API da Cielo
