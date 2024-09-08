@@ -16,15 +16,6 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // Adicionar CieloService com HttpClient
 builder.Services.AddHttpClient<CieloService>();
 
-builder.Services.AddHttpClient("MyAPI", client =>
-{
-    client.BaseAddress = new Uri("https://localhost:5035/");
-})
-.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-{
-    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-});
-
 builder.Services.AddControllers();
 builder.Services.AddAntiforgery();
 
@@ -51,6 +42,7 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 
+#pragma warning disable ASP0014 // Suggest using top level route registrations
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapRazorComponents<App>()
@@ -58,5 +50,6 @@ app.UseEndpoints(endpoints =>
 
     endpoints.MapControllers();
 });
+#pragma warning restore ASP0014 // Suggest using top level route registrations
 
 app.Run();
