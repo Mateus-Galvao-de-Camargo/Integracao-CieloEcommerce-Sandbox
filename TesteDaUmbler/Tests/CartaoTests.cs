@@ -38,8 +38,9 @@ namespace TesteDaUmbler.Tests
         }
 
         [TestMethod]
-        [DataRow("João da Silva", true)]  // Nome válido
-        [DataRow("João123", false)]  // Nome inválido
+        [DataRow("Fernanda GTA VI da Silva", true)]  // Nome válido
+        [DataRow("João da Silva", false)]  // Nome inválido
+        [DataRow("Joao123", false)]  // Nome inválido
         [DataRow("", false)]  // Nome vazio
         public void TestarValidacaoDoNomeNoCartao(string nomeNoCartao, bool resultadoEsperado)
         {
