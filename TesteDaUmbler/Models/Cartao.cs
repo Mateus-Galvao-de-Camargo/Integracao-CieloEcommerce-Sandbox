@@ -9,8 +9,8 @@ namespace TesteDaUmbler.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "O cartão é obrigatório.")]
-        [StringLength(16, MinimumLength = 13, ErrorMessage = "O cartão deve ter entre 13 e 16 dígitos.")]
-        [RegularExpression(@"^(4\d{12}(\d{3})?|5\d{15})$", ErrorMessage = "O número deve começar com 4 (Visa) ou 5 (Mastercard) e conter apenas números.")]
+        [StringLength(16, MinimumLength = 13, ErrorMessage = "O cartão deve ter 13 (Visa) ou 16 (Visa e MasterCard) dígitos.")]
+        [RegularExpression(@"^(4\d{12}(\d{3})?|5\d{15})$", ErrorMessage = "O cartão deve começar com 4 (Visa, pode ter 13 ou 16 dígitos) ou 5 (Mastercard, deve ter 16 dígitos) e conter apenas números")]
         public string NumeroDoCartao { get; set; } = null!;
 
         [Required(ErrorMessage = "O código de segurança é obrigatório.")]
@@ -29,7 +29,7 @@ namespace TesteDaUmbler.Models
         public string? Validade { get; set; } = null!;
 
         [Required(ErrorMessage = "O nome no cartão é obrigatório.")]
-        [LettersOnly]
+        [LettersOnly(ErrorMessage = "O nome deve conter apenas letras e espaços em branco simples.")]
         public string NomeNoCartao { get; set; } = null!;
 
         public string? Bandeira { get; set; }
@@ -37,7 +37,7 @@ namespace TesteDaUmbler.Models
 
     public class LettersOnlyAttribute : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value is string stringValue)
             {
