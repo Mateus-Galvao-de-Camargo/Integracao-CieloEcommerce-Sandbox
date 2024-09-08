@@ -32,7 +32,7 @@ cd TesteDaUmbler/TesteDaUmbler
 ```
 
 ### 3. Configurar a API da Cielo
-#### **OPCIONAL** Caso queira manter os meus é só ignorar essas configurações
+#### **OPCIONAL** Caso queira apenas manter minhas keys para testar é só ignorar este passo
 
 O projeto utiliza a API da Cielo para realizar simulações de transações de pagamento. A Cielo oferece gratuitamente as chaves para fazer uso desse ambiente de testes, só e necessário se [cadastrar](https://cadastrosandbox.cieloecommerce.cielo.com.br/) e guardar as chaves. Você precisará configurar essas chaves no arquivo `appsettings.json`:
 
