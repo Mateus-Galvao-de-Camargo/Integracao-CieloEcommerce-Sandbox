@@ -14,6 +14,7 @@ namespace TesteDaUmbler.Models
         public int CartaoId { get; set; }
 
         [Required(ErrorMessage = "Por favor, insira um valor válido.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "O valor deve ser maior que zero.")]
         public double Valor { get; set; }
 
         public string? EstadoDaTransacao { get; set; }
