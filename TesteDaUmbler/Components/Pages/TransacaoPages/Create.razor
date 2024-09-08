@@ -4,10 +4,10 @@
 @using Newtonsoft.Json
 @using TesteDaUmbler.Models
 @using TesteDaUmbler.Data
-@inject HttpClient HttpClient
+@inject CieloService CieloService
 @inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
-@inject IHttpClientFactory ClientFactory
+
 
 <PageTitle>Transação</PageTitle>
 
@@ -56,8 +56,10 @@
     public Transacao Transacao { get; set; } = new();
     private List<Cartao> cartoes = new List<Cartao>();
     private string? mensagemErro;
+    private string _urlDoApp = null!;
 
     protected override async Task OnInitializedAsync()
+
     {
         // Carregar a lista de cartões cadastrados no banco
         cartoes = await DbContext.Cartoes.ToListAsync();
@@ -67,18 +69,17 @@
     {
         try
         {
-            var CartaoSelecionado = await DbContext.Cartoes.FindAsync(Transacao.CartaoId);
-
-            Transacao.Cartao = CartaoSelecionado!;
-
-            var response = await HttpClient.PostAsJsonAsync("http://localhost:5035/api/payment", Transacao);
-
-            if (response.IsSuccessStatusCode)
+            if (Transacao is not null)
             {
-                var result = await response.Content.ReadAsStringAsync();
+                var CartaoSelecionado = await DbContext.Cartoes.FindAsync(Transacao.CartaoId);
+
+                Transacao.Cartao = CartaoSelecionado!;
+
+                var result = await CieloService.CreatePayment(Transacao);
 
                 Transacao.Log = result;
 
+                // Transforma a resposta Json da api no objeto LogDaTransacao
                 var log = JsonConvert.DeserializeObject<LogDaTransacao>(Transacao.Log);
 
                 if (log == null || string.IsNullOrEmpty(log.Payment.PaymentId))
@@ -86,6 +87,7 @@
                     mensagemErro = $"PaymentId não identificado";
                     return;
                 }
+
                 Transacao.PaymentId = log.Payment.PaymentId;
 
                 Transacao.EstadoDaTransacao = log.Payment.ReturnMessage;
@@ -95,8 +97,9 @@
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                mensagemErro = $"Erro ao realizar o pagamento: {errorContent}";
+                Console.WriteLine("Erro: Transação está nula.");
+                mensagemErro = "A Transação está nula.";
+                return;
             }
         }
         catch (Exception ex)

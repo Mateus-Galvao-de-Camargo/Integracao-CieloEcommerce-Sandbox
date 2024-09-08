@@ -50,7 +50,7 @@ public class CieloService
 
         var jsonContent = JsonConvert.SerializeObject(paymentRequest);
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
+        
         // Adicionar os cabeçalhos de autenticação
         _httpClient.DefaultRequestHeaders.Add("MerchantId", _merchantId);
         _httpClient.DefaultRequestHeaders.Add("MerchantKey", _merchantKey);
