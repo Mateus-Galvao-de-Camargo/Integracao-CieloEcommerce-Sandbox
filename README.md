@@ -34,7 +34,7 @@ cd TesteDaUmbler/TesteDaUmbler
 ### 3. Configurar a API da Cielo
 #### **OPCIONAL** Caso queira manter os meus é só ignorar essas configurações
 
-O projeto utiliza a API da Cielo para realizar simulações de transações de pagamento. A Cielo oferece gratuitamente as chaves para fazer uso desse ambiente de testes, só e necessário se [cadastrar]([asd](https://cadastrosandbox.cieloecommerce.cielo.com.br/)) e guardar as chaves. Você precisará configurar essas chaves no arquivo `appsettings.json`:
+O projeto utiliza a API da Cielo para realizar simulações de transações de pagamento. A Cielo oferece gratuitamente as chaves para fazer uso desse ambiente de testes, só e necessário se [cadastrar](https://cadastrosandbox.cieloecommerce.cielo.com.br/) e guardar as chaves. Você precisará configurar essas chaves no arquivo `appsettings.json`:
 
 ```json
 {
@@ -70,6 +70,22 @@ Depois de iniciar o servidor, o projeto estará rodando em `http://localhost:503
 Com este projeto você pode: 
 - Cadastrar, Editar, Excluir e Visualizar Cartões (CRUD)
 - Cadastrar, Capturar, Cancelar e Visualizar Transações de Cartão de Crédito
+
+### 7. Usar os testes unitários
+#### **OPCIONAL**
+
+Abra o terminal e garanta que esteja no diretório do projeto
+
+Caso não esteja apenas navegue até o projeto com: 
+```bash
+cd TesteDaUmbler/TesteDaUmbler
+```
+E use o comando:
+```bash
+dotnet test
+```
+
+Se estiver no Visual Studio você pode só usar do Test Explorer
 
 ## Tecnologias Utilizadas
 
