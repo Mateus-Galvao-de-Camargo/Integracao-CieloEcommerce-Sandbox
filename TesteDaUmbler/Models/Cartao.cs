@@ -9,8 +9,8 @@ namespace TesteDaUmbler.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "O cartão é obrigatório.")]
-        [StringLength(16, MinimumLength = 16, ErrorMessage = "O cartão deve ter 16 dígitos.")]
-        [RegularExpression(@"^[4-5]\d{15}$", ErrorMessage = "O número deve começar com 4 ou 5 e conter apenas números.")]
+        [StringLength(16, MinimumLength = 13, ErrorMessage = "O cartão deve ter entre 13 e 16 dígitos.")]
+        [RegularExpression(@"^(4\d{12}(\d{3})?|5\d{15})$", ErrorMessage = "O número deve começar com 4 (Visa) ou 5 (Mastercard) e conter apenas números.")]
         public string NumeroDoCartao { get; set; } = null!;
 
         [Required(ErrorMessage = "O código de segurança é obrigatório.")]
