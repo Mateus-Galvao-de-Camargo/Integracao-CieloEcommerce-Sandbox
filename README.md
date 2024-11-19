@@ -17,7 +17,7 @@ Antes de rodar o projeto localmente, certifique-se de ter o seguinte instalado:
 
 ### 1. Clonar o repositório
 
-Abra um terminal ou Git Bash e clone o repositório:
+Abra um terminal e clone o repositório:
 
 ```bash
 git clone https://github.com/Mateus-Galvao-de-Camargo/Integracao-CieloEcommerce-Sandbox.git
